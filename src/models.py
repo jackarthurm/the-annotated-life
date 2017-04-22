@@ -1,5 +1,4 @@
-from app import (app,
-                 db)
+from src.app import db
 
 
 class Post(db.Model):
