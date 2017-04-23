@@ -4,7 +4,10 @@ Flask==0.12
 Flask-SQLAlchemy==2.2
 itsdangerous==0.24
 Jinja2==2.9.5
+Markdown==2.6.8
 MarkupSafe==1.0
+marshmallow==2.13.5
+marshmallow-sqlalchemy==0.13.1
 packaging==16.8
 psutil==5.2.1
 psycopg2==2.7.1
