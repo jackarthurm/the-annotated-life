@@ -3,8 +3,10 @@ from flask import (Blueprint,
                    request)
 from flask.views import MethodView                   
 
-from src.models import Post
-from src.schemas import PostSchema
+from src.models import (db,
+                        Post)
+from src.schemas import (post_schema,
+                         posts_schema)
 
 rest = Blueprint('src', __name__)
 
@@ -21,11 +23,19 @@ class PostAPI(MethodView):
 
     def post(self):
 
-        data = request.get_json(force=True)  # Ignore mimetype
+        request_data = request.get_json(force=True)  # Ignore mimetype
 
-        PostSchema.validate(data)
+        post_obj, errors = post_schema.load(request_data)
 
-        raise NotImplementedError
+        if errors:
+            return jsonify(errors), 400
+
+        db.session.add(post_obj)
+        db.session.commit()
+
+        response_data = post_schema.dump(post_obj).data
+
+        return jsonify(response_data)
 
     def delete(self, post_id):
 
@@ -59,9 +69,9 @@ rest.add_url_rule(post_route + '<int:post_id>/',
 def get_all_posts():
 
     query = Post.query.all()
-    return PostSchema().dump(query, many=True).data
+    return posts_schema.dump(query).data
 
 def get_post(post_id):
 
     query = Post.query.get_or_404(post_id)
-    return PostSchema().dump(query).data
+    return post_schema.dump(query).data
