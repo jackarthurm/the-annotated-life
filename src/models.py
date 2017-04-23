@@ -10,10 +10,3 @@ class Post(db.Model):
     title = db.Column(db.String(200))
     body = db.Column(db.Text)
     pub_date = db.Column(db.DateTime)
-
-    def __init__(self, 
-                 title, 
-                 body, 
-                 pub_date=None):
-
-        self.title = title
