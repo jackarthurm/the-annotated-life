@@ -1,11 +1,11 @@
 from flask import Flask
 
-from src.models import db
-from src.rest import rest
+from api.models import db
+from api.rest import rest
 
 
 app = Flask(__name__)
-app.config.from_pyfile('config.py')
+app.config.from_pyfile('../config.py')
 
 db.init_app(app)
 

@@ -1,6 +1,6 @@
 from marshmallow_sqlalchemy import ModelSchema
 
-from src.models import (db, 
+from api.models import (db, 
                         Post)
 
 

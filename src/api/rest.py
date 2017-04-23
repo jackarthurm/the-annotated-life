@@ -3,9 +3,9 @@ from flask import (Blueprint,
                    request)
 from flask.views import MethodView                   
 
-from src.models import (db,
+from api.models import (db,
                         Post)
-from src.schemas import (post_schema,
+from api.schemas import (post_schema,
                          posts_schema)
 
 rest = Blueprint('src', __name__)
