@@ -1,3 +1,5 @@
 .vscode/
-.talenv/
+talenv/
+build/
+dist/
 **/__pycache__/
