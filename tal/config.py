@@ -14,8 +14,9 @@ if DB_URI is None:
     'name': os.environ['DB_NAME']
     }
 
-    DB_URI = 'postgres://{role}:{pass}@{host}:{port}/{name}'\
-    .format(**DATABASE_CONFIG)
+    DB_URI = ('postgres://{role}:{pass}@{host}:{port}/{name}'
+              .format(**DATABASE_CONFIG)
+    )
 
 SQLALCHEMY_DATABASE_URI = DB_URI
 

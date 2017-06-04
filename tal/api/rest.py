@@ -1,12 +1,12 @@
 from flask import (Blueprint, 
                    jsonify,
                    request)
-from flask.views import MethodView                   
+from flask.views import MethodView
 
-from api.models import (db,
-                        Post)
-from api.schemas import (post_schema,
-                         posts_schema)
+from tal.api.models import (db,
+                            Post)
+from tal.api.schemas import (post_schema,
+                             posts_schema)
 
 rest = Blueprint('src', __name__)
 

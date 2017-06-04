@@ -1,10 +1,13 @@
 from flask import Flask
+from flask_cors import CORS
 
-from api.models import db
-from api.rest import rest
+from tal.api.models import db
+from tal.api.rest import rest
 
 
 app = Flask(__name__)
+CORS(app, origins=('*',))
+
 app.config.from_pyfile('../config.py')
 
 db.init_app(app)

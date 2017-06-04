@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import ModelSchema
 
-from api.models import (db, 
-                        Post)
+from tal.api.models import (db, 
+                            Post)
 
 
 class PostSchema(ModelSchema):
