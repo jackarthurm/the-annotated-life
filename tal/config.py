@@ -30,3 +30,5 @@ SECRET_KEY = os.environ['SECRET_KEY']
 SERVER_NAME = os.environ['SERVER_NAME']
 
 JSON_AS_ASCII = False
+
+POSTS_LIST_PAGE_SIZE = 8
