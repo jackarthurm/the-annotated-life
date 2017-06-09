@@ -8,7 +8,7 @@ from flask.views import MethodView
 from tal.api.models import (db,
                             Post)
 from tal.api.schemas import (post_schema,
-                             posts_schema)
+                             post_summary_schema)
 
 rest = Blueprint('src', __name__)
 
@@ -18,7 +18,7 @@ class PostAPI(MethodView):
   def get(self, post_id):
 
     if post_id is None:
-        return jsonify({'posts': get_all_posts()})
+        return jsonify({'posts': get_post_summaries()})
 
     else:
         return jsonify(get_post(post_id))
@@ -51,7 +51,7 @@ class PostAPI(MethodView):
 post_route = '/posts/'
 post_view = PostAPI.as_view('post_api')
 
-# Get posts list
+# Posts and post summaries
 rest.add_url_rule(post_route, 
                   defaults={'post_id': None}, 
                   view_func=post_view, 
@@ -68,7 +68,7 @@ rest.add_url_rule(post_route + '<int:post_id>/',
                   methods=['GET', 'PUT', 'DELETE'])
 
 
-def get_all_posts():
+def get_post_summaries():
 
   page = request.args.get('page', '1')
   page = int(page) if page.isdigit() else None
@@ -77,7 +77,7 @@ def get_all_posts():
 
   query = Post.query.paginate(page, page_size).items
 
-  return posts_schema.dump(query).data
+  return post_summary_schema.dump(query).data
 
 def get_post(post_id):
 

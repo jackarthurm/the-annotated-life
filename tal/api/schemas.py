@@ -8,8 +8,20 @@ class PostSchema(ModelSchema):
 
     class Meta:
         model = Post
+        exclude = ['summary']
         sqla_session = db.session
 
+
 post_schema = PostSchema()
-posts_schema = PostSchema(many=True)
+
+
+class PostSummarySchema(ModelSchema):
+
+    class Meta:
+        model = Post
+        exclude = ['body']
+        sqla_session = db.session
+
+
+post_summary_schema = PostSummarySchema(many=True)
 
