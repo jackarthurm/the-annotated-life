@@ -11,11 +11,13 @@ if DB_URI is None:
         'pass': os.environ['DB_PASS'],
         'host': os.environ['DB_HOST'],
         'port': os.environ['DB_PORT'],
-        'name': os.environ['DB_NAME']
+        'name': os.environ['DB_NAME'],
     }
 
-    DB_URI = ('postgres://{role}:{pass}@{host}:{port}/{name}'
-              .format(**DATABASE_CONFIG)
+    DB_URI = (
+        'postgres://{role}:{pass}@{host}:{port}/{name}'.format(
+            **DATABASE_CONFIG
+        )
     )
 
 SQLALCHEMY_DATABASE_URI = DB_URI
