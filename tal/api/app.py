@@ -2,17 +2,27 @@ from flask import Flask
 from flask_cors import CORS
 
 from tal.api.models import db
+from tal.api.schemas import ma
 from tal.api.rest import rest
 
 
-app = Flask(__name__)
-CORS(app, origins=('*',))
+def create_app():
 
-app.config.from_pyfile('../config.py')
+    app = Flask(__name__)
 
-db.init_app(app)
+    app.config.from_pyfile('../config.py')
 
-with app.app_context():
-    db.create_all()
+    db.init_app(app)
+    ma.init_app(app)
+    rest.init_app(app)
 
-app.register_blueprint(rest)
+    with app.app_context():
+        db.create_all()
+
+    CORS(app, origins=('*',))
+
+
+    return app
+
+
+create_app().run()

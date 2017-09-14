@@ -1,85 +1,136 @@
-from flask import (Blueprint, 
-                   jsonify,
-                   request,
-                   current_app as app)
-from flask.views import MethodView
+from http.client import (
+    CREATED,
+    BAD_REQUEST,
+)
+
+from flask_restful import (
+    Resource,
+    Api,
+    request,
+    current_app as app,
+)
+
+from tal.api.schemas import (
+    post_summary_list_schema,
+    post_schema,
+    author_schema,
+    author_list_schema,
+)
 
 
-from tal.api.models import (db,
-                            Post)
-from tal.api.schemas import (post_schema,
-                             post_summary_schema)
-
-rest = Blueprint('src', __name__)
+rest = Api()
 
 
-class PostAPI(MethodView):
+class PostListResource(Resource):
 
-  def get(self, post_id):
+    def get(self):
+        return {
+            'posts': dump_all_objects(post_summary_list_schema)
+        }
 
-    if post_id is None:
-        return jsonify({'posts': get_post_summaries()})
+    def post(self):
 
-    else:
-        return jsonify(get_post(post_id))
+        obj, errors = load_object(post_schema)
 
-  def post(self):
+        if errors:
+            return errors, BAD_REQUEST
+
+        obj.save()
+
+        return post_schema.dump(obj).data, CREATED
+
+
+class PostResource(Resource):
+
+    def get(self, pk):
+        return dump_object(post_schema, pk)
+
+    def delete(self, pk):
+        raise NotImplementedError
+
+    def put(self, pk):
+        raise NotImplementedError
+
+
+class AuthorListResource(Resource):
+
+    def get(self):
+        return {
+            'authors': dump_all_objects(author_list_schema)
+        }
+
+    def post(self):
+
+        obj, errors = load_object(author_schema)
+
+        if errors:
+            return errors, BAD_REQUEST
+
+        obj.save()
+
+        return author_schema.dump(obj).data, CREATED
+
+
+class AuthorResource(Resource):
+
+    def get(self, pk):
+        return dump_object(author_schema, pk)
+
+    def delete(self, pk):
+        raise NotImplementedError
+
+    def put(self, pk):
+        raise NotImplementedError
+
+
+# Posts and post summaries
+post_route = '/posts/'
+
+rest.add_resource(PostListResource,
+                  post_route)
+
+rest.add_resource(PostResource,
+                  post_route + '<string:pk>/')
+
+
+# Authors
+author_route = '/authors/'
+
+rest.add_resource(AuthorListResource,
+                  author_route)
+
+rest.add_resource(AuthorResource,
+                  author_route + '<string:pk>/')
+
+
+def dump_all_objects(schema):
+
+    model = schema.Meta.model
+
+    # Paginate the queryset
+    page = request.args.get('page', '1')
+    page = int(page) if page.isdigit() else None
+
+    page_size = app.config['PAGE_SIZE']
+
+    query = model.query.paginate(page, page_size).items
+
+    return schema.dump(query).data
+
+
+def dump_object(schema, pk):
+
+    model = schema.Meta.model
+
+    query = model.query.get_or_404(pk)
+
+    return schema.dump(query).data
+
+
+def load_object(schema, partial=False):
 
     request_data = request.get_json(force=True)  # Ignore mimetype
 
-    post_obj, errors = post_schema.load(request_data)
+    obj, errors = schema.load(request_data, partial=partial)
 
-    if errors:
-        return jsonify(errors), 400
-
-    db.session.add(post_obj)
-    db.session.commit()
-
-    response_data = post_schema.dump(post_obj).data
-
-    return jsonify(response_data)
-
-  def delete(self, post_id):
-
-    raise NotImplementedError
-
-  def put(self, post_id):
-
-    raise NotImplementedError
-
-
-post_route = '/posts/'
-post_view = PostAPI.as_view('post_api')
-
-# Posts and post summaries
-rest.add_url_rule(post_route, 
-                  defaults={'post_id': None}, 
-                  view_func=post_view, 
-                  methods=['GET'])
-
-# Create a post
-rest.add_url_rule(post_route, 
-                  view_func=post_view, 
-                  methods=['POST'])
-
-# Read, update, or delete a specific post
-rest.add_url_rule(post_route + '<int:post_id>/',
-                  view_func=post_view, 
-                  methods=['GET', 'PUT', 'DELETE'])
-
-
-def get_post_summaries():
-
-  page = request.args.get('page', '1')
-  page = int(page) if page.isdigit() else None
-
-  page_size = app.config['POSTS_LIST_PAGE_SIZE']
-
-  query = Post.query.paginate(page, page_size).items
-
-  return post_summary_schema.dump(query).data
-
-def get_post(post_id):
-
-  query = Post.query.get_or_404(post_id)
-  return post_schema.dump(query).data
+    return obj, errors
