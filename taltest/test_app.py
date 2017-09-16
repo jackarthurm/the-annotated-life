@@ -3,7 +3,6 @@ from http.client import (
     OK,
     NOT_FOUND
 )
-
 import unittest
 
 from flask_testing import TestCase as FlaskTestingTestCase
@@ -40,14 +39,14 @@ class AppTestCase(BaseTestCase):
 
     def test_root_url(self):
         r = self.client.get('/')
-        self.assertEqual(r.status_code, NOT_FOUND)
+        self.assertStatus(r, NOT_FOUND)
 
 
 class PostRestTestCase(BaseTestCase):
 
     def test_empty_post_summary_list(self):
         r = self.client.get('/posts/')
-        self.assertEqual(r.status_code, OK)
+        self.assertStatus(r, OK)
         self.assertDictEqual(r.json, {'posts': []})
 
 
