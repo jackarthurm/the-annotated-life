@@ -1,27 +1,55 @@
+from abc import ABCMeta
+from http.client import (
+    OK,
+    NOT_FOUND
+)
+
 import unittest
-import tempfile
-from tal.api.app import app
+
+from flask_testing import TestCase as FlaskTestingTestCase
+
+from tal.api.app_factory import create_app
+from tal.api.models import db
 
 
-class AppTestCase(unittest.TestCase):
+TEST_DATABASE_URI = (
+    'postgresql://testrole:testpassword@localhost:5432/theannotatedlifetest'
+)
 
-    def setUp(self):
-        self.db_file, self.db_path = tempfile.mkstemp()
 
-        app.config['DATABASE'] = self.db_path
+class BaseTestCase(FlaskTestingTestCase, metaclass=ABCMeta):
+
+    def create_app(self):
+        app = create_app()
+
+        # Set up the test config
+        app.config['SQLALCHEMY_DATABASE_URI'] = TEST_DATABASE_URI
         app.config['TESTING'] = True
 
-        self.app = app.test_client(use_cookies=False)
+        return app
 
-        app.init_db()
+    def setUp(self):
+        db.create_all()
 
     def tearDown(self):
-        os.close(self.db_file)
-        os.unlink(self.db_path)
+        db.session.remove()
+        db.drop_all()
 
-    def test_empty_db(self):
-        r = self.app.get('/posts/')
-        assert r.data == {'posts': []}
+
+class AppTestCase(BaseTestCase):
+
+    def test_root_url(self):
+        r = self.client.get('/')
+        self.assertEqual(r.status_code, NOT_FOUND)
+
+
+class PostRestTestCase(BaseTestCase):
+
+    def test_empty_post_summary_list(self):
+        r = self.client.get('/posts/')
+        self.assertEqual(r.status_code, OK)
+        self.assertDictEqual(r.json, {'posts': []})
+
 
 if __name__ == '__main__':
     unittest.main()

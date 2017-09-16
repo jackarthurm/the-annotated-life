@@ -27,3 +27,4 @@ SQLAlchemy-Utils==0.32.14
 TheAnnotatedLife==0.1.0
 Werkzeug==0.12.1
 flask-restful==0.3.6
+flask-testing==0.6.2
