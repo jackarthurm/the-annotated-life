@@ -2,11 +2,11 @@ import os
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-DB_URI = os.environ.get('DB_URI')
+database_uri = os.environ.get('DB_URI')
 
-if DB_URI is None:
+if database_uri is None:
 
-    DATABASE_CONFIG = {
+    database_config = {
         'role': os.environ['DB_ROLE'],
         'pass': os.environ['DB_PASS'],
         'host': os.environ['DB_HOST'],
@@ -14,13 +14,13 @@ if DB_URI is None:
         'name': os.environ['DB_NAME'],
     }
 
-    DB_URI = (
+    database_uri = (
         'postgres://{role}:{pass}@{host}:{port}/{name}'.format(
-            **DATABASE_CONFIG
+            **database_config
         )
     )
 
-SQLALCHEMY_DATABASE_URI = DB_URI
+SQLALCHEMY_DATABASE_URI = database_uri
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -34,3 +34,11 @@ SERVER_NAME = os.environ['SERVER_NAME']
 JSON_AS_ASCII = False
 
 PAGE_SIZE = 20
+
+
+# Must be provided as a CSV string
+cors_allowed_origins = os.environ['CORS_ALLOWED_ORIGINS']
+
+CORS_ALLOWED_ORIGINS = list(
+    filter(None, [o.strip() for o in cors_allowed_origins.split(',')])
+)
