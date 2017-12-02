@@ -12,9 +12,9 @@ db = SQLAlchemy()
 
 class SaveModelMixin(object):
 
-    def save(self):
+    def save(self) -> None:
         db.session.add(self)
-        db.session.commit()
+        return db.session.commit()
 
 
 class Tag(SaveModelMixin, db.Model):
@@ -25,13 +25,10 @@ class Tag(SaveModelMixin, db.Model):
     value = db.Column(db.String(40))
 
     post = db.relationship('Post', backref='tags')
-    post_id = db.Column(UUIDType(), db.ForeignKey('post.uuid'))
+    post_id = db.Column(UUIDType(), db.ForeignKey('post.id'))
 
-    def __repr__(self):
-        return '{self.__name__} {self.id_}'.format(self=self)
-
-    def __str__(self):
-        return 'Tag {self.value} on {self.post}'.format(self=self)
+    def __str__(self) -> str:
+        return f'Tag {self.value} on {self.post}'
 
 
 class Reference(SaveModelMixin, db.Model):
@@ -43,40 +40,34 @@ class Reference(SaveModelMixin, db.Model):
     description = db.Column(db.String(300))
 
     post = db.relationship('Post', backref='references')
-    post_id = db.Column(UUIDType(), db.ForeignKey('post.uuid')) 
+    post_id = db.Column(UUIDType(), db.ForeignKey('post.id'))
 
-    def __repr__(self):
-        return '{self.__name__} {self.id}'.format(self=self) 
-
-    def __str__(self):
-        return 'Reference to {self.url} on {self.post}'.format(self=self)
+    def __str__(self) -> str:
+        return f'Reference to {self.url} on {self.post}'
 
 
 class Author(SaveModelMixin, db.Model):
 
-    __tablename__ = 'author'    
+    __tablename__ = 'author'
 
-    uuid = db.Column(UUIDType(), primary_key=True, default=uuid4)
+    id = db.Column(UUIDType(), primary_key=True, default=uuid4)
     name = db.Column(db.String(100), nullable=False)
     media_url = db.Column(URLType)
     organisation = db.Column(db.String(100))
     organisation_url = db.Column(URLType)
 
-    def __repr__(self):
-        return '{self.__name__} {self.uuid}'.format(self=self)
-
-    def __str__(self):
-        return 'Author {self.name}'.format(self=self)
+    def __str__(self) -> str:
+        return f'Author {self.name}'
 
 
 class Post(SaveModelMixin, db.Model):
 
     __tablename__ = 'post'
 
-    uuid = db.Column(UUIDType(), primary_key=True, default=uuid4)
+    id = db.Column(UUIDType(), primary_key=True, default=uuid4)
     title = db.Column(db.String(100), nullable=False)
-    date_published = db.Column(db.DateTime, nullable=False)
-    date_written = db.Column(db.DateTime)
+    date_published = db.Column(db.DateTime(timezone=True), nullable=False)
+    date_written = db.Column(db.DateTime(timezone=True))
     summary = db.Column(db.String(200), nullable=False)
     body = db.Column(db.Text, nullable=False)
     footer = db.Column(db.String(100))
@@ -84,12 +75,9 @@ class Post(SaveModelMixin, db.Model):
     author = db.relationship('Author', backref='posts')
     author_id = db.Column(
         UUIDType(), 
-        db.ForeignKey('author.uuid'), 
+        db.ForeignKey('author.id'),
         nullable=False
     )
 
-    def __repr__(self):
-        return '{self.__name__} {self.uuid}'.format(self=self)
-
-    def __str__(self):
-        return 'Post {self.title} by {self.author}'.format(self=self)
+    def __str__(self) -> str:
+        return f'Post {self.title} by {self.author}'
