@@ -1,7 +1,5 @@
-from http.client import (
-    CREATED,
-    BAD_REQUEST,
-)
+from http import HTTPStatus
+from typing import Optional
 
 from flask_restful import (
     Resource,
@@ -24,6 +22,7 @@ rest = Api()
 class PostListResource(Resource):
 
     def get(self):
+
         return {
             'posts': dump_all_objects(post_summary_list_schema)
         }
@@ -33,11 +32,11 @@ class PostListResource(Resource):
         obj, errors = load_object(post_schema)
 
         if errors:
-            return errors, BAD_REQUEST
+            return errors, HTTPStatus.BAD_REQUEST
 
         obj.save()
 
-        return post_schema.dump(obj).data, CREATED
+        return post_schema.dump(obj).data, HTTPStatus.CREATED
 
 
 class PostResource(Resource):
@@ -64,11 +63,11 @@ class AuthorListResource(Resource):
         obj, errors = load_object(author_schema)
 
         if errors:
-            return errors, BAD_REQUEST
+            return errors, HTTPStatus.BAD_REQUEST
 
         obj.save()
 
-        return author_schema.dump(obj).data, CREATED
+        return author_schema.dump(obj).data, HTTPStatus.CREATED
 
 
 class AuthorResource(Resource):
@@ -108,10 +107,10 @@ def dump_all_objects(schema):
     model = schema.Meta.model
 
     # Paginate the queryset
-    page = request.args.get('page', '1')
-    page = int(page) if page.isdigit() else None
+    page: str = request.args.get('page', '1')
+    page: Optional[int] = int(page) if page.isdigit() else None
 
-    page_size = app.config['PAGE_SIZE']
+    page_size: str = app.config['PAGE_SIZE']
 
     query = model.query.paginate(page, page_size).items
 
