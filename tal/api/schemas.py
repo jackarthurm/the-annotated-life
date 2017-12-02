@@ -1,8 +1,10 @@
-from flask_marshmallow import Marshmallow
+from uuid import UUID
+
 from marshmallow import (
     ValidationError,
     validates,
 )
+from flask_marshmallow import Marshmallow
 
 from tal.api.models import (
     Post,
@@ -50,29 +52,36 @@ class PostSchema(BaseSchema):
         load_only = (
             'summary',
         )
-        exclude = (
-            'author',
-        )
+
+    url = ma.AbsoluteURLFor(
+        'postresource',
+        pk='<id>',
+    )
 
     tags = ma.Nested(TagSchema, many=True)
     references = ma.Nested(ReferenceSchema, many=True)
 
+    author = ma.HyperlinkRelated(
+        'authorresource',
+        'pk',
+        external=True,
+    )
+
     @validates('author_id')
-    def validate_author(self, value):
+    def validate_author(self, value: UUID) -> None:
         if Author.query.get(value) is None:
-            raise ValidationError('fuck off you prick')
+            raise ValidationError('Invalid author id')
 
 
 post_schema = PostSchema()
 
 
-class PostSummarySchema(BaseSchema):
+class PostSummarySchema(PostSchema):
 
     class Meta(BaseSchema.Meta):
         model = Post
         exclude = (
-            'body', 
-            'tags', 
+            'body',
             'references',
         )
 
