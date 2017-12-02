@@ -6,10 +6,10 @@ from tal.api.schemas import ma
 from tal.api.rest import rest
 
 
-app_module = '.'.join(__name__.split('.')[:-1])
+app_module: str = '.'.join(__name__.split('.')[:-1])
 
 
-def create_app():
+def create_app() -> Flask:
 
     app = Flask(app_module)
 
@@ -22,4 +22,3 @@ def create_app():
     CORS(app, origins=app.config['CORS_ALLOWED_ORIGINS'])
 
     return app
-
