@@ -5,7 +5,8 @@ from typing import (
     Optional,
 )
 
-DatabaseURI = str
+from tal.api.tal_types import DatabaseURI
+
 
 BASE_DIR: str = os.path.abspath(os.path.dirname(__file__))
 
@@ -13,16 +14,16 @@ database_uri: Optional[DatabaseURI] = os.environ.get('DB_URI')
 
 if database_uri is None:
 
-    database_config: Dict[str, str] = {
-        'role': os.environ['DB_ROLE'],
-        'pass': os.environ['DB_PASS'],
-        'host': os.environ['DB_HOST'],
-        'port': os.environ['DB_PORT'],
-        'name': os.environ['DB_NAME'],
-    }
+    database_config: Dict[str, str] = dict(
+        role=os.environ['DB_ROLE'],
+        password=os.environ['DB_PASS'],
+        host=os.environ['DB_HOST'],
+        port=os.environ['DB_PORT'],
+        name=os.environ['DB_NAME'],
+    )
 
     database_uri: DatabaseURI = (
-        'postgres://{role}:{pass}@{host}:{port}/{name}'.format(
+        'postgres://{role}:{password}@{host}:{port}/{name}'.format(
             **database_config
         )
     )
