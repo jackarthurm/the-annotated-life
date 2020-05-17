@@ -17,4 +17,4 @@ RUN apk --purge del .build-deps
 
 COPY . .
 
-CMD waitress-serve --port=$PORT --call "tal.api.app_factory:create_app"
+CMD waitress-serve --port=$PORT "tal.api.wsgi"
