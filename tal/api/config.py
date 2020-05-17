@@ -10,7 +10,7 @@ from tal.api.tal_types import DatabaseURI
 
 BASE_DIR: str = os.path.abspath(os.path.dirname(__file__))
 
-database_uri: Optional[DatabaseURI] = os.environ.get('DB_URI')
+database_uri: Optional[DatabaseURI] = os.environ.get('DATABASE_URL')
 
 if database_uri is None:
 
