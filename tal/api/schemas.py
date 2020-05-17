@@ -1,89 +1,59 @@
-from uuid import UUID
-
 from marshmallow import (
     ValidationError,
     validates,
+    Schema,
+    validate,
 )
-from flask_marshmallow import Marshmallow
-
-from tal.api.models import (
-    Post,
-    Author,
-    Reference,
-    Tag,
+from marshmallow.fields import (
+    Nested,
+    URL,
+    UUID,
+    String,
+    DateTime,
 )
 
 
-ma = Marshmallow()
+class BaseSchema(Schema):
 
-
-class BaseSchema(ma.ModelSchema):
-
-    class Meta:
-        include_fk = True
+    object_id = UUID(dump_only=True)
+    object_url = URL(dump_only=True)
 
 
 class AuthorSchema(BaseSchema):
 
-    class Meta(BaseSchema.Meta):
-        model = Author
-
-
-author_schema = AuthorSchema()
-author_list_schema = AuthorSchema(many=True)
+    name = String(validate=validate.Length(max=100))
+    media_url = URL()
+    organisation_name = String(validate=validate.Length(max=100))
+    organisation_url = URL()
 
 
 class ReferenceSchema(BaseSchema):
 
-    class Meta(BaseSchema.Meta):
-        model = Reference
+    description = String(validate=validate.Length(max=300))
+    post_url = URL(dump_only=True)
+    post_id = UUID()
 
 
 class TagSchema(BaseSchema):
 
-    class Meta(BaseSchema.Meta):
-        model = Tag    
+    value = String(validate=validate.Length(max=40))
+    post_url = URL(dump_only=True)
+    post_id = UUID()
 
 
-class PostSchema(BaseSchema):
+class PostSummarySchema(BaseSchema):
 
-    class Meta(BaseSchema.Meta):
-        model = Post
-        load_only = (
-            'summary',
-        )
-
-    url = ma.AbsoluteURLFor(
-        'postresource',
-        pk='<id>',
-    )
-
-    tags = ma.Nested(TagSchema, many=True)
-    references = ma.Nested(ReferenceSchema, many=True)
-
-    author = ma.HyperlinkRelated(
-        'authorresource',
-        'pk',
-        external=True,
-    )
-
-    @validates('author_id')
-    def validate_author(self, value: UUID) -> None:
-        if Author.query.get(value) is None:
-            raise ValidationError('Invalid author id')
+    title_text = String(validate=validate.Length(max=100))
+    date_published = DateTime()
+    date_written = DateTime()
+    summary_text = String(validate=validate.Length(max=200))
+    footer_text = String(validate=validate.Length(max=100))
+    author_url = URL(dump_only=True)
+    author_id = UUID()
+    tags = Nested(TagSchema, many=True, dump_only=True)
 
 
-post_schema = PostSchema()
+class PostSchema(PostSummarySchema):
 
-
-class PostSummarySchema(PostSchema):
-
-    class Meta(BaseSchema.Meta):
-        model = Post
-        exclude = (
-            'body',
-            'references',
-        )
-
-
-post_summary_list_schema = PostSummarySchema(many=True)
+    body_text = String()
+    references = Nested(ReferenceSchema, many=True)

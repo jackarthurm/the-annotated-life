@@ -9,9 +9,6 @@ app: Flask = create_app()
 with app.app_context():
     db.create_all()
 
-app.run()
-
-
 # Test code from here
 from tal.api.models import Post, Author
 
@@ -28,3 +25,5 @@ with app.app_context():
     db.session.add(author)
     db.session.add(post)
     db.session.commit()
+
+app.run()

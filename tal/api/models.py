@@ -10,18 +10,11 @@ from sqlalchemy_utils import (
 db = SQLAlchemy()
 
 
-class SaveModelMixin(object):
-
-    def save(self) -> None:
-        db.session.add(self)
-        return db.session.commit()
-
-
-class Tag(SaveModelMixin, db.Model):
+class Tag(db.Model):
 
     __tablename__ = 'tag'
 
-    id_ = db.Column('id', db.Integer, primary_key=True)
+    object_id = db.Column('id', UUIDType(), primary_key=True, default=uuid4)
     value = db.Column(db.String(40))
 
     post = db.relationship('Post', backref='tags')
@@ -31,11 +24,11 @@ class Tag(SaveModelMixin, db.Model):
         return f'Tag {self.value} on {self.post}'
 
 
-class Reference(SaveModelMixin, db.Model):
+class Reference(db.Model):
 
     __tablename__ = 'reference'
 
-    id_ = db.Column('id', db.Integer, primary_key=True)
+    object_id = db.Column('id', UUIDType(), primary_key=True, default=uuid4)
     url = db.Column(URLType)
     description = db.Column(db.String(300))
 
@@ -46,11 +39,11 @@ class Reference(SaveModelMixin, db.Model):
         return f'Reference to {self.url} on {self.post}'
 
 
-class Author(SaveModelMixin, db.Model):
+class Author(db.Model):
 
     __tablename__ = 'author'
 
-    id = db.Column(UUIDType(), primary_key=True, default=uuid4)
+    object_id = db.Column('id', UUIDType(), primary_key=True, default=uuid4)
     name = db.Column(db.String(100), nullable=False)
     media_url = db.Column(URLType)
     organisation = db.Column(db.String(100))
@@ -60,17 +53,17 @@ class Author(SaveModelMixin, db.Model):
         return f'Author {self.name}'
 
 
-class Post(SaveModelMixin, db.Model):
+class Post(db.Model):
 
     __tablename__ = 'post'
 
-    id = db.Column(UUIDType(), primary_key=True, default=uuid4)
+    object_id = db.Column('id', UUIDType(), primary_key=True, default=uuid4)
     title = db.Column(db.String(100), nullable=False)
     date_published = db.Column(db.DateTime(timezone=True), nullable=False)
     date_written = db.Column(db.DateTime(timezone=True))
     summary = db.Column(db.String(200), nullable=False)
     body = db.Column(db.Text, nullable=False)
-    footer = db.Column(db.String(100))
+    footer = db.Column(db.String(100), nullable=False)
 
     author = db.relationship('Author', backref='posts')
     author_id = db.Column(
