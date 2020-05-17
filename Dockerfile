@@ -17,7 +17,4 @@ RUN apk --purge del .build-deps
 
 COPY . .
 
-RUN adduser -D myuser
-USER myuser
-
-CMD waitress-serve --port=$PORT --call "flaskr:create_app"
+CMD waitress-serve --port=$PORT --call "tal.api.app_factory:create_app"
